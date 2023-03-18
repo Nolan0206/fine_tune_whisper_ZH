@@ -23,7 +23,7 @@ input_str = common_voice["train"][0]["sentence"]
 labels = tokenizer(input_str).input_ids
 decoded_with_special = tokenizer.decode(labels, skip_special_tokens=False)
 decoded_str = tokenizer.decode(labels, skip_special_tokens=True)
-print('1=================')
+print('=================')
 def prepare_dataset(batch):
     # load and resample audio data from 48 to 16kHz
     audio = batch["audio"]

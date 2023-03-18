@@ -15,9 +15,9 @@ print(common_voice['train'][0]['sentence'])
 from transformers import WhisperFeatureExtractor
 from transformers import WhisperTokenizer
 from transformers import WhisperProcessor
-feature_extractor = WhisperFeatureExtractor.from_pretrained("/mnt/whisper-small-zh/")
-tokenizer = WhisperTokenizer.from_pretrained("/mnt/whisper-small-zh/")
-processor = WhisperProcessor.from_pretrained("/mnt/whisper-small-zh/")
+feature_extractor = WhisperFeatureExtractor.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
+tokenizer = WhisperTokenizer.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
+processor = WhisperProcessor.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
 
 '''
 input_str = common_voice["train"][0]["sentence"]
@@ -134,5 +134,5 @@ trainer.train()
 
 
 print("Saving fine-tuned model")
-model.save_pretrained(save_directory='/mnt/whisper-small-zh/result/model21')
-processor.save_pretrained(save_directory='/mnt/whisper-small-zh/result/model')
+model.save_pretrained(save_directory='/mnt/whisper-small-zh/result/model/')
+processor.save_pretrained(save_directory='/mnt/whisper-small-zh/result/processor/')
