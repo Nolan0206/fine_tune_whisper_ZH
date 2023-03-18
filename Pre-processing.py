@@ -24,7 +24,7 @@ from transformers import (
 text_column_names = {'sentence', 'transcription', 'transciption'}  # possible text column choices
 audio_column = 'audio'
 text_column = 'sentence'
-MAX_AUDIO_DURATION = 30  # because of whisper model input is 30 second, TODO: refer to paper
+MAX_AUDIO_DURATION = 30  # because of whisper model input is 30 second, refer to paper
 DEFAULT_SAMPLING_RATE = 16_000
 MAX_LENGTH = 448
 
