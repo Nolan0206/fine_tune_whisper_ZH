@@ -8,16 +8,16 @@ from datasets import load_dataset, DatasetDict, Dataset
 #os.chdir('/content/drive/MyDrive')
 
 common_voice = DatasetDict()
-common_voice= DatasetDict.load_from_disk("/mnt/common_voice_prepared")
+common_voice= DatasetDict.load_from_disk("/source/DataRepository/revise_dataset/simple")
 print(common_voice)
-print(common_voice['train'][0]['sentence'])
+#print(common_voice['train'][0]['sentence'])
 
 from transformers import WhisperFeatureExtractor
 from transformers import WhisperTokenizer
 from transformers import WhisperProcessor
-feature_extractor = WhisperFeatureExtractor.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
-tokenizer = WhisperTokenizer.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
-processor = WhisperProcessor.from_pretrained("/mnt/whisper-small-zh/whisper_hf/")
+feature_extractor = WhisperFeatureExtractor.from_pretrained("/source/DataRepository/whisper-hf_history")
+tokenizer = WhisperTokenizer.from_pretrained("/source/DataRepository/whisper-hf_history")
+processor = WhisperProcessor.from_pretrained("/source/DataRepository/whisper-hf_history")
 
 '''
 input_str = common_voice["train"][0]["sentence"]
@@ -87,7 +87,7 @@ def compute_metrics(pred):
 
 from transformers import WhisperForConditionalGeneration
 
-model = WhisperForConditionalGeneration.from_pretrained("/mnt/whisper-small-zh/")
+model = WhisperForConditionalGeneration.from_pretrained('/source/DataRepository/whisper_hf_old')
 
 model.config.forced_decoder_ids = None
 model.config.suppress_tokens = []
@@ -96,7 +96,7 @@ model.config.suppress_tokens = []
 from transformers import Seq2SeqTrainingArguments
 training_args = Seq2SeqTrainingArguments(
     num_train_epochs=1, # Total number of training epochs to perform
-    output_dir="/mnt/whisper-small-zh/result", # model predictions and checkpoints will be written on Google Drive to be able to recover checkpoints
+    output_dir="./results_demo", # model predictions and checkpoints will be written on Google Drive to be able to recover checkpoints
     per_device_train_batch_size=32, # The batch size per GPU/TPU core/CPU for training
     gradient_accumulation_steps=1,  # increase by 2x for every 2x decrease in batch size
     learning_rate=1e-5, # The initial learning rate for AdamW optimizer
@@ -117,6 +117,7 @@ training_args = Seq2SeqTrainingArguments(
     metric_for_best_model="wer", # specify the metric to use to compare two different models
     greater_is_better=False, # set it to False as our metric is better when lower
     push_to_hub=False, # push the model to the Hub every time the model is saved
+    dataloader_num_workers=8
 )
 from transformers import Seq2SeqTrainer
 
@@ -124,7 +125,7 @@ trainer = Seq2SeqTrainer(
     args=training_args,
     model=model,
     train_dataset=common_voice["train"],
-    eval_dataset=common_voice["test"],
+    eval_dataset=common_voice["val"],
     data_collator=data_collator,
     compute_metrics=compute_metrics,
     tokenizer=processor.feature_extractor,
@@ -134,5 +135,5 @@ trainer.train()
 
 
 print("Saving fine-tuned model")
-model.save_pretrained(save_directory='/mnt/whisper-small-zh/result/model/')
-processor.save_pretrained(save_directory='/mnt/whisper-small-zh/result/processor/')
+model.save_pretrained(save_directory='./results_demo/model')
+#processor.save_pretrained(save_directory='./results_demo/processor')

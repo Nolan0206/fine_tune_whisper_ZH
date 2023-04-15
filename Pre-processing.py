@@ -1,11 +1,12 @@
 import argparse
 from urllib.error import HTTPError
 import pandas as pd
+from pathlib import Path
 import os
 import sys
 import librosa
 import json
-import random
+
 from huggingface_hub import HfApi, HfFolder
 from colorama import Fore, init
 import numpy as np
@@ -84,8 +85,11 @@ def read_dir(dir_name) -> list[str] | None:
     data_file_names = os.listdir(json_directory)
     json_file_example = []
     for file_name in data_file_names:
-        if os.path.splitext(file_name)[1] == '.json':
-            json_file_example.append(file_name)
+        try:
+            if os.path.splitext(file_name)[1] == '.json':
+                json_file_example.append(file_name)
+        except IndexError:
+            pass
     else:
         if not list:
             print(Fore.RED + f"The json file list is empty, because the json file is not found in {catalog_json}")
@@ -107,6 +111,7 @@ def split_json(audio):
         segments = audio[aid]['segments']
         path_to_opus = audio[aid]['path']
         path_to_opus = path_to_opus.split('/')[-1]
+        ''''''
         for seg_num in range(len(segments)):
             seg_begin = segments[seg_num]['begin_time']
             seg_end = segments[seg_num]['end_time']
@@ -153,10 +158,9 @@ def push_dataset(path_to_hf, dataset, split):
         return True
 
 
-def read_single_dataset(dataset_name, split, feature_extractor, tokenizer,
+def read_single_dataset(dataset_name, feature_extractor, tokenizer,
                         merge_audio_to_max):
-    # gaijin
-    common_voice = Dataset.load_from_disk(f'{dataset_name}/{split}')
+    common_voice = Dataset.load_from_disk(dataset_name)
     # make preprocessing here
     assert type(common_voice) == Dataset
     if merge_audio_to_max:
@@ -173,11 +177,13 @@ def read_single_dataset(dataset_name, split, feature_extractor, tokenizer,
 
 def merge_datasets(dataset_dir, split, feature_extractor, tokenizer, merge_audio_to_max, interleave):
     ds_list = []
-    for dataset_name in dataset_dir:
-        # dataset_name, config, splits = dataset_name.split('|')
-        # config = config if config else None
-        ds = read_single_dataset(dataset_name, split, feature_extractor, tokenizer, merge_audio_to_max)
-        ds_list.append(ds)
+    dataset_list = os.listdir(f'{dataset_dir}/{split}')
+    for dataset_name in dataset_list:
+        if os.path.isdir(dataset_name):
+            # dataset_name, config, splits = dataset_name.split('|')
+            # config = config if config else None
+            ds = read_single_dataset(dataset_name, feature_extractor, tokenizer, merge_audio_to_max)
+            ds_list.append(ds)
 
     if interleave:
         ds = interleave_datasets(ds_list, seed=42)
@@ -234,6 +240,11 @@ def get_mapper(
     return mapper
 
 
+def gen(anylist):
+    for m in anylist:
+        yield m
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--catalog_json', default=None, help='txt|catalog_json or dir|catalog_json')
@@ -247,6 +258,7 @@ if __name__ == '__main__':
                         help='Name of the repository')
 
     parser.add_argument('--path_to_whisper_hf', default=None, type=str, help='Local Configuration')
+    parser.add_argument('--path_to_record', default=None, type=str, help='The json file that has been written')
     parser.add_argument('--interleave', action='store_true', default=False, help='')
     parser.add_argument('--merge-audio-to-max', action='store_true', default=False,
                         help='if passed, then it will merge audios to `MAX_AUDIO_DURATION`')
@@ -266,6 +278,13 @@ if __name__ == '__main__':
     else:
         print(Fore.RED + "error")
         sys.exit()
+    # 记录已处理的json文件，方便添加数据
+    raw_name_written = gen(anylist=json_file_name)
+    dataset_name_list = []
+    record_list = {
+        "raw": json_file_name,
+        "revise": dataset_name_list
+    }
 
     for json_local_name in json_file_name:
         print(f"Processing {json_local_name}")

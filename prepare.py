@@ -8,15 +8,15 @@ from datasets import load_dataset, DatasetDict, Dataset, Audio
 #os.chdir('/content/drive/MyDrive')
 
 common_voice = DatasetDict()
-common_voice["train"]= Dataset.load_from_disk("/mnt/common_voice/train")
-common_voice["test"]= Dataset.load_from_disk("/mnt/common_voice/test")
+common_voice["train"]= Dataset.load_from_disk("/source/DataRepository/raw_dataset_simple/train/WenetSpeech_partition_1")
+common_voice["val"]= Dataset.load_from_disk("/source/DataRepository/raw_dataset_simple/validation/WenetSpeech_partition_1")
 print(common_voice)
 
 from transformers import WhisperFeatureExtractor
 from transformers import WhisperTokenizer
 from transformers import WhisperProcessor
-feature_extractor = WhisperFeatureExtractor.from_pretrained("/mnt/whisper-small-zh/")
-tokenizer = WhisperTokenizer.from_pretrained("/mnt/whisper-small-zh/")
+feature_extractor = WhisperFeatureExtractor.from_pretrained("/source/DataRepository/whisper-hf_history")
+tokenizer = WhisperTokenizer.from_pretrained("/source/DataRepository/whisper-hf_history")
 #processor = WhisperProcessor.from_pretrained("/mnt/whisper-small-zh/")
 
 input_str = common_voice["train"][0]["sentence"]
@@ -36,4 +36,4 @@ def prepare_dataset(batch):
     return batch
 
 common_voice = common_voice.map(prepare_dataset, remove_columns=common_voice.column_names["train"], num_proc=3)
-common_voice.save_to_disk('/mnt/common_voice_prepared')
+common_voice.save_to_disk('/source/DataRepository/revise_dataset/simple')

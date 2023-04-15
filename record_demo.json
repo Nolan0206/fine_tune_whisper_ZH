@@ -1,0 +1,11 @@
+{
+    "push_to_hub": [],
+    "raw": [
+        "/source/DataRepository/json/000000/WenetSpeech_partition_0.json",
+        "/source/DataRepository/json/000000/WenetSpeech_partition_1.json"
+    ],
+    "revise": [
+        "/source/DataRepository/json/000000/WenetSpeech_partition_0.json",
+        "/source/DataRepository/json/000000/WenetSpeech_partition_1.json"
+    ]
+}
